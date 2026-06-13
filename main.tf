@@ -33,10 +33,6 @@ resource "proxmox_virtual_environment_vm" "ministack" {
 
   initialization {
     datastore_id = var.vm_datastore_id
-    user_account {
-      username = "ubuntu"
-      keys     = [var.ssh_public_key]
-    }
     ip_config {
       ipv4 {
         address = "dhcp"
@@ -61,8 +57,16 @@ resource "proxmox_virtual_environment_file" "ministack_cloud_init_user_data" {
   datastore_id = var.snippet_datastore_id
   node_name    = var.proxmox_node_name
 
-  source_file {
-    path = "${path.module}/cloud-init/ministack-user-data.yaml"
+  source_raw {
+    file_name = "ministack-user-data.yaml"
+    data = templatefile(
+      "${path.module}/cloud-init/ministack-user-data.yaml.tftpl",
+      {
+        hostname       = var.ministack_vm_name,
+        ssh_public_key = trimspace(var.ssh_public_key),
+
+      }
+    )
   }
 }
 
