@@ -42,6 +42,7 @@ resource "proxmox_virtual_environment_vm" "ministack" {
         address = "dhcp"
       }
     }
+    user_data_file_id = proxmox_virtual_environment_file.ministack_cloud_init_user_data.id
   }
 
   network_device {
@@ -53,6 +54,16 @@ resource "proxmox_virtual_environment_vm" "ministack" {
   }
   serial_device {}
 
+}
+
+resource "proxmox_virtual_environment_file" "ministack_cloud_init_user_data" {
+  content_type = "snippets"
+  datastore_id = var.snippet_datastore_id
+  node_name    = var.proxmox_node_name
+
+  source_file {
+    path = "${path.module}/cloud-init/ministack-user-data.yaml"
+  }
 }
 
 
